@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useForm, FormProvider, useFormContext } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import Nested from "./Nested";
+import TextBox from "./components/TextBox";
 
 function App() {
-  const [val, setVal] = useState(false);
   const defaultValues = {
     def: {
       name: "",
@@ -17,28 +16,26 @@ function App() {
       color: "",
       want: [],
     },
-    nested: "",
   };
   const formSchema = yup.object({
     def: yup.object({
-      name: val
-        ? yup.string().trim()
-        : yup.string().required().trim().max(9).min(9),
-      password: yup.string().required().min(8).trim(),
+      name: yup.string().required("Name is Required.").trim().max(9).min(9),
+      password: yup.string().required("Password is Required.").min(8).trim(),
       confirmPass: yup
         .string()
-        .required()
+        .required("Confirm Password is Required.")
         .trim()
-        .oneOf([yup.ref("password")], "Passwords must match"),
-      email: yup.string().email().required().trim(),
-      age: yup
-        .number()
-        .positive()
-        .integer()
-        .required()
-        .typeError("Please enter a number"),
-      tanc: yup.boolean().oneOf([true], "Please accept the terms"),
-      color: yup.string().required(),
+        .oneOf([yup.ref("password")], "Passwords must match."),
+      email: yup
+        .string()
+        .email("Please enter a valid email.")
+        .required("Email is Required.")
+        .trim(),
+      age: yup.string().required("Age is Required."),
+      tanc: yup
+        .boolean()
+        .oneOf([true], "Please accept the Terms and Conditions."),
+      gender: yup.string().required("Gender is Required."),
       want: yup.array().min(2, "min 2"),
     }),
     nested: yup.string().required(),
@@ -47,26 +44,18 @@ function App() {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm({
     defaultValues,
     resolver: yupResolver(formSchema),
   });
 
-  useEffect(() => {
-    setValue("def.tanc", true, { shouldValidate: true });
-  }, []);
-
-  useEffect(() => {
-    const watchName = watch((value) => {
-      if (value.def.name.length === 9) console.log("lessgo");
-    });
-    return () => watchName.unsubscribe();
-  }, [watch]);
-
   const onSubmit = (data) => console.log(data);
+
+  const handleNumber = (value) => {
+    return value.replace(/[^0-9]/g, "");
+  };
 
   return (
     <FormProvider register={register} errors={errors}>
@@ -74,49 +63,58 @@ function App() {
         style={{
           display: "flex",
           flexDirection: "column",
-          maxWidth: "300px",
+          width: "400px",
         }}
         onSubmit={handleSubmit(onSubmit)}
       >
-        <input
+        <TextBox
+          name="def.name"
+          control={control}
+          label="Name"
           type="text"
-          name="name"
-          {...register("def.name")}
+          error={errors?.def?.name?.message || null}
           maxLength={9}
         />
-        {errors?.def?.name?.message ? (
-          <p>{errors?.def?.name?.message}</p>
-        ) : null}
-        <input type="email" name="email" {...register("def.email")} />
-        {errors?.def?.email?.message ? (
-          <p>{errors?.def?.email?.message}</p>
-        ) : null}
-        <input type="password" name="password" {...register("def.password")} />
-        {errors?.def?.password?.message ? (
-          <p>{errors?.def?.password?.message}</p>
-        ) : null}
-        <input
-          type="password"
-          name="confirmPass"
-          {...register("def.confirmPass")}
+        <TextBox
+          name="def.email"
+          control={control}
+          label="Email"
+          type="text"
+          error={errors?.def?.email?.message || null}
         />
-        {errors?.def?.confirmPass?.message ? (
-          <p>{errors?.def?.confirmPass?.message}</p>
-        ) : null}
-        <input type="text" name="age" {...register("def.age")} />
-        {errors?.def?.age?.message ? <p>{errors?.def?.age?.message}</p> : null}
+        <TextBox
+          name="def.password"
+          control={control}
+          label="Password"
+          type="password"
+          error={errors?.def?.password?.message || null}
+        />
+        <TextBox
+          name="def.confirmPass"
+          control={control}
+          label="ConfirmPass"
+          type="password"
+          error={errors?.def?.confirmPass?.message || null}
+        />
+        <TextBox
+          name="def.age"
+          control={control}
+          label="Age"
+          type="text"
+          error={errors?.def?.age?.message || null}
+          onChange={handleNumber}
+        />
         <input type="checkbox" name="tanc" {...register("def.tanc")} />
         {errors?.def?.tanc?.message ? (
           <p>{errors?.def?.tanc?.message}</p>
         ) : null}
-        <select name="color" {...register("def.color")}>
-          <option value="">Select a Color</option>
-          <option value="red">Red</option>
-          <option value="blue">Blue</option>
-          <option value="green">Green</option>
+        <select name="gender" {...register("def.gender")}>
+          <option value="">Select your Gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
         </select>
-        {errors?.def?.color?.message ? (
-          <p>{errors?.def?.color?.message}</p>
+        {errors?.def?.gender?.message ? (
+          <p>{errors?.def?.gender?.message}</p>
         ) : null}
         <label htmlFor="want">1</label>
         <input {...register("def.want")} type="checkbox" value={1} />
@@ -125,12 +123,6 @@ function App() {
         {errors?.def?.want?.message ? (
           <p>{errors?.def?.want?.message}</p>
         ) : null}
-        <input
-          type="checkbox"
-          value={val}
-          onChange={(e) => setVal(e.target.checked)}
-        />
-        <Nested />
         <input type="submit" value="Submit" />
       </form>
     </FormProvider>

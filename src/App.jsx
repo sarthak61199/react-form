@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import React from "react";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import TextBox from "./components/TextBox";
@@ -58,74 +58,68 @@ function App() {
   };
 
   return (
-    <FormProvider register={register} errors={errors}>
-      <form
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "400px",
-        }}
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <TextBox
-          name="def.name"
-          control={control}
-          label="Name"
-          type="text"
-          error={errors?.def?.name?.message || null}
-          maxLength={9}
-        />
-        <TextBox
-          name="def.email"
-          control={control}
-          label="Email"
-          type="text"
-          error={errors?.def?.email?.message || null}
-        />
-        <TextBox
-          name="def.password"
-          control={control}
-          label="Password"
-          type="password"
-          error={errors?.def?.password?.message || null}
-        />
-        <TextBox
-          name="def.confirmPass"
-          control={control}
-          label="ConfirmPass"
-          type="password"
-          error={errors?.def?.confirmPass?.message || null}
-        />
-        <TextBox
-          name="def.age"
-          control={control}
-          label="Age"
-          type="text"
-          error={errors?.def?.age?.message || null}
-          onChange={handleNumber}
-        />
-        <input type="checkbox" name="tanc" {...register("def.tanc")} />
-        {errors?.def?.tanc?.message ? (
-          <p>{errors?.def?.tanc?.message}</p>
-        ) : null}
-        <select name="gender" {...register("def.gender")}>
-          <option value="">Select your Gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
-        {errors?.def?.gender?.message ? (
-          <p>{errors?.def?.gender?.message}</p>
-        ) : null}
-        <label htmlFor="want">1</label>
-        <input {...register("def.want")} type="checkbox" value={1} />
-        <label htmlFor="want">2</label>
-        <input {...register("def.want")} type="checkbox" value={2} />
-        {errors?.def?.want?.message ? (
-          <p>{errors?.def?.want?.message}</p>
-        ) : null}
-        <input type="submit" value="Submit" />
-      </form>
-    </FormProvider>
+    <form
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "400px",
+      }}
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <TextBox
+        name="def.name"
+        control={control}
+        label="Name"
+        type="text"
+        error={errors?.def?.name?.message || null}
+        maxLength={9}
+      />
+      <TextBox
+        name="def.email"
+        control={control}
+        label="Email"
+        type="text"
+        error={errors?.def?.email?.message || null}
+      />
+      <TextBox
+        name="def.password"
+        control={control}
+        label="Password"
+        type="password"
+        error={errors?.def?.password?.message || null}
+      />
+      <TextBox
+        name="def.confirmPass"
+        control={control}
+        label="ConfirmPass"
+        type="password"
+        error={errors?.def?.confirmPass?.message || null}
+      />
+      <TextBox
+        name="def.age"
+        control={control}
+        label="Age"
+        type="text"
+        error={errors?.def?.age?.message || null}
+        onChange={handleNumber}
+      />
+      <input type="checkbox" name="tanc" {...register("def.tanc")} />
+      {errors?.def?.tanc?.message ? <p>{errors?.def?.tanc?.message}</p> : null}
+      <select name="gender" {...register("def.gender")}>
+        <option value="">Select your Gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+      {errors?.def?.gender?.message ? (
+        <p>{errors?.def?.gender?.message}</p>
+      ) : null}
+      <label htmlFor="want">1</label>
+      <input {...register("def.want")} type="checkbox" value={1} />
+      <label htmlFor="want">2</label>
+      <input {...register("def.want")} type="checkbox" value={2} />
+      {errors?.def?.want?.message ? <p>{errors?.def?.want?.message}</p> : null}
+      <input type="submit" value="Submit" />
+    </form>
   );
 }
 

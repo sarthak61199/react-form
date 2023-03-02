@@ -27,8 +27,10 @@ function TextBox({
           type={type}
           error={Boolean(error)}
           helperText={error ?? " "}
+          margin="dense"
           inputProps={{
             maxLength,
+            autocomplete: "off",
           }}
         />
       )}

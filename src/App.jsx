@@ -3,8 +3,23 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import TextBox from "./components/TextBox";
+import Select from "./components/Select";
+import {
+  Button,
+  FormControl,
+  FormHelperText,
+  FormControlLabel,
+  Paper,
+  Typography,
+} from "@mui/material";
+import CheckBox from "./components/CheckBox";
 
 function App() {
+  const genders = [
+    { label: "Male", value: 1 },
+    { label: "Female", value: 2 },
+  ];
+
   const defaultValues = {
     def: {
       name: "",
@@ -13,14 +28,18 @@ function App() {
       confirmPass: "",
       age: "",
       tanc: false,
-      color: "",
-      want: [],
+      gender: 0,
     },
   };
+
   const formSchema = yup.object({
     def: yup.object({
-      name: yup.string().required("Name is Required.").trim().max(9).min(9),
-      password: yup.string().required("Password is Required.").min(8).trim(),
+      name: yup.string().required("Name is Required.").trim(),
+      password: yup
+        .string()
+        .required("Password is Required.")
+        .min(8, "Password Should be of minimum 8 characters.")
+        .trim(),
       confirmPass: yup
         .string()
         .required("Confirm Password is Required.")
@@ -31,18 +50,22 @@ function App() {
         .email("Please enter a valid email.")
         .required("Email is Required.")
         .trim(),
-      age: yup.string().required("Age is Required."),
+      age: yup
+        .string()
+        .required("Age is Required.")
+        .test(
+          "min-age",
+          "Age should be greater than 0.",
+          (val) => parseInt(val) > 0
+        ),
       tanc: yup
         .boolean()
         .oneOf([true], "Please accept the Terms and Conditions."),
-      gender: yup.string().required("Gender is Required."),
-      want: yup.array().min(2, "min 2"),
+      gender: yup.number().oneOf([1, 2], "Gender is Required."),
     }),
-    nested: yup.string().required(),
   });
 
   const {
-    register,
     handleSubmit,
     control,
     formState: { errors },
@@ -51,75 +74,89 @@ function App() {
     resolver: yupResolver(formSchema),
   });
 
-  const onSubmit = (data) => console.log(data);
-
   const handleNumber = (value) => {
     return value.replace(/[^0-9]/g, "");
   };
 
+  const onSubmit = (data) => console.log(data);
+
   return (
-    <form
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        width: "400px",
-      }}
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <TextBox
-        name="def.name"
-        control={control}
-        label="Name"
-        type="text"
-        error={errors?.def?.name?.message || null}
-        maxLength={9}
-      />
-      <TextBox
-        name="def.email"
-        control={control}
-        label="Email"
-        type="text"
-        error={errors?.def?.email?.message || null}
-      />
-      <TextBox
-        name="def.password"
-        control={control}
-        label="Password"
-        type="password"
-        error={errors?.def?.password?.message || null}
-      />
-      <TextBox
-        name="def.confirmPass"
-        control={control}
-        label="ConfirmPass"
-        type="password"
-        error={errors?.def?.confirmPass?.message || null}
-      />
-      <TextBox
-        name="def.age"
-        control={control}
-        label="Age"
-        type="text"
-        error={errors?.def?.age?.message || null}
-        onChange={handleNumber}
-      />
-      <input type="checkbox" name="tanc" {...register("def.tanc")} />
-      {errors?.def?.tanc?.message ? <p>{errors?.def?.tanc?.message}</p> : null}
-      <select name="gender" {...register("def.gender")}>
-        <option value="">Select your Gender</option>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-      </select>
-      {errors?.def?.gender?.message ? (
-        <p>{errors?.def?.gender?.message}</p>
-      ) : null}
-      <label htmlFor="want">1</label>
-      <input {...register("def.want")} type="checkbox" value={1} />
-      <label htmlFor="want">2</label>
-      <input {...register("def.want")} type="checkbox" value={2} />
-      {errors?.def?.want?.message ? <p>{errors?.def?.want?.message}</p> : null}
-      <input type="submit" value="Submit" />
-    </form>
+    <Paper sx={{ px: 4, py: 2 }}>
+      <form
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "400px",
+        }}
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <Typography
+          variant="h4"
+          textAlign="center"
+          textTransform="uppercase"
+          sx={{ mb: 1, letterSpacing: 2 }}
+        >
+          Register
+        </Typography>
+        <TextBox
+          name="def.name"
+          control={control}
+          label="Name"
+          type="text"
+          error={errors?.def?.name?.message || null}
+        />
+        <TextBox
+          name="def.email"
+          control={control}
+          label="Email"
+          type="text"
+          error={errors?.def?.email?.message || null}
+        />
+        <TextBox
+          name="def.password"
+          control={control}
+          label="Password"
+          type="password"
+          error={errors?.def?.password?.message || null}
+        />
+        <TextBox
+          name="def.confirmPass"
+          control={control}
+          label="Confirm Password"
+          type="password"
+          error={errors?.def?.confirmPass?.message || null}
+        />
+        <TextBox
+          name="def.age"
+          control={control}
+          label="Age"
+          type="text"
+          error={errors?.def?.age?.message || null}
+          onChange={handleNumber}
+        />
+        <Select
+          name="def.gender"
+          items={genders}
+          error={errors?.def?.gender?.message || null}
+          label="Gender"
+          control={control}
+          defText="Select a Gender"
+        />
+        <FormControl required error={Boolean(errors?.def?.tanc?.message)}>
+          <FormControlLabel
+            control={<CheckBox name="def.tanc" control={control} />}
+            label="I accept the Terms and Conditions."
+            labelPlacement="end"
+          />
+          <FormHelperText>
+            {errors?.def?.tanc?.message ? errors?.def?.tanc?.message : " "}
+          </FormHelperText>
+        </FormControl>
+        <Button type="submit" variant="contained" sx={{ my: 2 }}>
+          Submit
+        </Button>
+      </form>
+    </Paper>
   );
 }
 
